@@ -80,7 +80,7 @@ app.post("/kids", (req, res) => {
     db.get("SELECT id FROM Days WHERE date = ?", [today()], (err, dayRow) => {
       if (dayRow) {
         db.run(
-          "INSERT INTO Attendance (day_id, kid_id, present) VALUES (?, ?, 0)",
+          "INSERT INTO Attendance (day_id, kid_id, present) VALUES (?, ?, 0)",sendAttendance
           [dayRow.id, newKidId, name],
           () => res.json({ id: newKidId, name })
         );
@@ -126,11 +126,10 @@ app.get("/attendance/today", (req, res) => {
 function sendAttendance(dayId, date, res) {
   db.all(
     `
-    SELECT Attendance.kid_id, Kids.name, Attendance.present
+    SELECT kid_id, kid_name AS name, present
     FROM Attendance
-    JOIN Kids ON Attendance.kid_id = Kids.id
-    WHERE Attendance.day_id = ?
-    ORDER BY Kids.name ASC
+    WHERE day_id = ?
+    ORDER BY kid_name ASC
   `,
     [dayId],
     (err, rows) => {
@@ -139,10 +138,7 @@ function sendAttendance(dayId, date, res) {
       res.json({
         dayId,
         date,
-        attendance: rows.map((r) => ({
-          ...r,
-          present: r.present === 1,
-        })),
+        attendance: rows.map((r) => ({ ...r, present: r.present === 1 })),
       });
     }
   );
