@@ -156,6 +156,7 @@ function sendAttendance(dayId, date, res) {
 }
 
 
+
 app.post("/attendance/mark", (req, res) => {
   const { dayId, kidId, present } = req.body;
 
