@@ -68,7 +68,8 @@ app.delete("/kids/:id", (req, res) => {
   });
 });
 
-app.post("/kids", (req, res) => {
+
+ app.post("/kids", (req, res) => {
   const { name } = req.body;
 
   db.run("INSERT INTO Kids (name) VALUES (?)", [name], function (err) {
@@ -76,12 +77,12 @@ app.post("/kids", (req, res) => {
 
     const newKidId = this.lastID;
     const todayDate = today();
-    // add new kid to today's attendance sheet
-    db.get("SELECT id FROM Days WHERE date = ?", [today()], (err, dayRow) => {
+
+    db.get("SELECT id FROM Days WHERE date = ?", [todayDate], (err, dayRow) => {
       if (dayRow) {
         db.run(
-          "INSERT INTO Attendance (day_id, kid_id, present) VALUES (?, ?, 0)",sendAttendance
-          [dayRow.id, newKidId, name],
+          "INSERT INTO Attendance (day_id, kid_id, present) VALUES (?, ?, 0)",
+          [dayRow.id, newKidId],
           () => res.json({ id: newKidId, name })
         );
       } else {
