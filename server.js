@@ -133,11 +133,12 @@ app.get("/attendance/today", (req, res) => {
 function sendAttendance(dayId, date, res) {
   db.all(
     `
-    SELECT kid_id, kid_name AS name, present
+    SELECT Attendance.kid_id, Kids.name, Attendance.present
     FROM Attendance
-    WHERE day_id = ?
-    ORDER BY kid_name ASC
-  `,
+    JOIN Kids ON Attendance.kid_id = Kids.id
+    WHERE Attendance.day_id = ?
+    ORDER BY Kids.name ASC
+    `,
     [dayId],
     (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
@@ -145,7 +146,10 @@ function sendAttendance(dayId, date, res) {
       res.json({
         dayId,
         date,
-        attendance: rows.map((r) => ({ ...r, present: r.present === 1 })),
+        attendance: rows.map((r) => ({
+          ...r,
+          present: r.present === 1,
+        })),
       });
     }
   );
