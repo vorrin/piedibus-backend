@@ -41,6 +41,8 @@ db.serialize(() => {
       FOREIGN KEY (kid_id) REFERENCES Kids(id)
     )
   `);
+  db.run("ALTER TABLE Attendance ADD COLUMN kid_name TEXT");
+
 });
 
 
@@ -50,6 +52,21 @@ function today() {
 }
 
 // ------------------- API ROUTES ----------------------
+// Delete a kid
+app.delete("/kids/:id", (req, res) => {
+  const kidId = req.params.id;
+
+  // Remove from Attendance first
+  db.run("DELETE FROM Attendance WHERE kid_id = ?", [kidId], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+
+    // Remove from Kids table
+    db.run("DELETE FROM Kids WHERE id = ?", [kidId], function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.sendStatus(200);
+    });
+  });
+});
 
 app.post("/kids", (req, res) => {
   const { name } = req.body;
@@ -58,13 +75,13 @@ app.post("/kids", (req, res) => {
     if (err) return res.status(500).json({ error: err.message });
 
     const newKidId = this.lastID;
-
+    const todayDate = today();
     // add new kid to today's attendance sheet
     db.get("SELECT id FROM Days WHERE date = ?", [today()], (err, dayRow) => {
       if (dayRow) {
         db.run(
           "INSERT INTO Attendance (day_id, kid_id, present) VALUES (?, ?, 0)",
-          [dayRow.id, newKidId],
+          [dayRow.id, newKidId, name],
           () => res.json({ id: newKidId, name })
         );
       } else {
