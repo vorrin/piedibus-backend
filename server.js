@@ -3,8 +3,14 @@ const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
-
+// ✅ Allow your Vercel frontend explicitly
+app.use(
+  cors({
+    origin: ["https://piedibus-frontend.vercel.app"],
+    methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
 app.get("/", (req, res) => {
   res.send("✅ Backend running");
 });
