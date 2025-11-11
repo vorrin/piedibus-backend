@@ -3,10 +3,17 @@ const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 
 const app = express();
+
+const allowedOrigins = [
+  'http://localhost:19006',           // Expo web dev server
+  'https://piedibus-frontend.vercel.app'  // production frontend
+];
+
+
 // ✅ Allow your Vercel frontend explicitly
 app.use(
   cors({
-    origin: ["https://piedibus-frontend.vercel.app"],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
   })
